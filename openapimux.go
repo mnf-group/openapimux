@@ -135,7 +135,7 @@ func (sr *OpenAPIMux) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handler.ServeHTTP(w, withPathParams(r, pathParams))
+	handler.ServeHTTP(w, WithPathParams(r, pathParams))
 }
 
 //Respond sends HTTP response
@@ -159,7 +159,7 @@ func chain(middlewares []func(http.Handler) http.Handler, endpoint http.Handler)
 	return h
 }
 
-//withPathParams sets the in-context path params for a request.
-func withPathParams(r *http.Request, pathParams map[string]string) *http.Request {
+//WithPathParams sets the in-context path params for a request.
+func WithPathParams(r *http.Request, pathParams map[string]string) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), pathParamsKey, pathParams))
 }
