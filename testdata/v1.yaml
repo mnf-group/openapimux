@@ -1,0 +1,20 @@
+openapi: 3.0.0
+info:
+  title: ''
+  version: 0.0.1
+servers:
+  - url: "/v1"
+
+paths:
+  /:
+    get:
+      operationId: testGet1
+      responses:
+        200:
+          description: Successful response.
+  /noHandler:
+    get:
+      operationId: noHandler
+      responses:
+        200:
+          description: Successful response.
