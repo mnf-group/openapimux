@@ -1,6 +1,6 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: ''
+  title: 'Test sample v1'
   version: 0.0.1
 servers:
   - url: "/v1"
