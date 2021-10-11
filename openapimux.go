@@ -3,9 +3,10 @@ package openapimux
 import (
 	"context"
 	"net/http"
-
+	
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
+	legacyrouter "github.com/getkin/kin-openapi/routers/legacy"
 )
 
 //OpenAPIMux is a "schema first" HTTP router. It takes one or multiple OpenAPI schema
@@ -26,7 +27,7 @@ type OpenAPIMux struct {
 	handler       http.Handler
 	handlers      map[string]http.Handler
 	middlewares   []func(http.Handler) http.Handler
-	Routers       *openapi3filter.Routers
+	Routers       *legacyrouter.Routers
 	ErrorHandler  func(http.ResponseWriter, *http.Request, string, int)
 	DetailedError bool
 }
@@ -41,15 +42,16 @@ var pathParamsKey = &contextKey{"pathParams"}
 
 //NewRouter creates a OpenAPIMux from API definitions
 func NewRouter(apis ...string) (*OpenAPIMux, error) {
-	routers := make(openapi3filter.Routers, len(apis))
+	routers := make(legacyrouter.Routers, len(apis))
 
 	for i, api := range apis {
-		swagger, e := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(api)
+		swagger, e := openapi3.NewLoader().LoadFromFile(api)
 		if e != nil {
 			return nil, e
 		}
 
-		routers[i] = openapi3filter.NewRouter().WithSwagger(swagger)
+		route, e := legacyrouter.NewRouter(swagger)
+		routers[i] = route.(*legacyrouter.Router)
 	}
 
 	return &OpenAPIMux{
@@ -103,7 +105,7 @@ func PathParam(r *http.Request, key string) string {
 }
 
 func (sr *OpenAPIMux) handleRequest(w http.ResponseWriter, r *http.Request) {
-	_, route, pathParams, e := sr.Routers.FindRoute(r.Method, r.URL)
+	_, route, pathParams, e := sr.Routers.FindRoute(r)
 	if route == nil || route.Operation == nil || route.Operation.OperationID == "" || e != nil {
 		sr.ErrorHandler(w, r, "Path not found", http.StatusNotFound)
 		return
