@@ -1,4 +1,4 @@
-module github.com/MNFGroup/openapimux
+module github.com/mnf-group/openapimux
 
 go 1.17
 
